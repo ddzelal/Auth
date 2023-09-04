@@ -8,6 +8,7 @@ class CustomTextField extends StatefulWidget {
   final ValueChanged<String>? onChange;
   final bool? isPassword;
   final TextEditingController? controller;
+  final String? Function(String?)? validator; // Dodali smo validator
 
   const CustomTextField({
     required this.label,
@@ -16,6 +17,7 @@ class CustomTextField extends StatefulWidget {
     this.onChange,
     this.isPassword,
     this.controller,
+    this.validator, // Dodali smo validator
   });
 
   @override
@@ -44,7 +46,8 @@ class _CustomTextFieldState extends State<CustomTextField> {
             Icon(widget.leadingIcon, color: AppColors.dark3),
           SizedBox(width: 8.0),
           Expanded(
-            child: TextField(
+            child: TextFormField(
+              validator: widget.validator,
               controller: widget.controller,
               obscureText: _obscureText,
               onChanged: widget.onChange,

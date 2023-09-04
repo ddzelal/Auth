@@ -1,10 +1,12 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter_application_auth/components/app_toast.dart';
+import 'package:flutter_application_auth/exceptions/app_custom_exception.dart';
 import 'package:flutter_application_auth/model/register.model.dart';
 import 'package:http/http.dart' as http;
 
 class UserApi {
-  static final BASE_URL = 'http://192.168.0.193:3000';
+  static const BASE_URL = 'http://192.168.0.193:3000';
   static Future<dynamic> register(RegisterModelRequest requestModel) async {
     final url = '$BASE_URL/api/users';
     try {
@@ -12,18 +14,24 @@ class UserApi {
           headers: {"Content-Type": "application/json"},
           body: RegisterModelRequestToJson(requestModel));
       if (response.statusCode == 200) {
-        json.decode(response.body);
-      } else if (response.statusCode == 400) {
-        var errors = jsonDecode(response.body);
-        if (errors is List && errors.isNotEmpty) {
-          String errorMessage = errors[0]['message'];
-          CustomToast.show(message: errorMessage);
-        }
+        CustomToast.show(
+            message: 'User successfully created, please verify your account');
+        return json.decode(response.body);
       } else if (response.statusCode == 409) {
-        CustomToast.show(message: 'Account already exists');
+        return CustomToast.show(message: 'Account already exists');
       }
+      print(jsonDecode(response.body));
+    } on SocketException catch (e) {
+      print(e);
+      throw NoInternetException('No Internet');
+    } on HttpException {
+      throw NoServiceFoundException('No Service Found');
+    } on FormatException catch (e) {
+      print(e);
+      throw InvalidFormatException('Invalid Data Format');
     } catch (e) {
       print(e);
+      throw UnknownException('Unknow');
     }
   }
 }
