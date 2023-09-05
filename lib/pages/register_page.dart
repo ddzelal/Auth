@@ -3,6 +3,7 @@ import 'package:flutter_application_auth/components/app_button.dart';
 import 'package:flutter_application_auth/components/app_text_field.dart';
 import 'package:flutter_application_auth/components/app_toast.dart';
 import 'package:flutter_application_auth/components/toolbar.dart';
+import 'package:flutter_application_auth/config/app_routes.dart';
 import 'package:flutter_application_auth/config/app_strings.dart';
 import 'package:flutter_application_auth/model/register.model.dart';
 import 'package:flutter_application_auth/services/user_service.dart';
@@ -45,14 +46,19 @@ class _RegisterPageState extends State<RegisterPage> {
       });
       try {
         // Remove this line - this is for test
-        await Future.delayed(const Duration(seconds: 1));
-        final res = await UserApi.register(RegisterModelRequest(
-            firstName: _firstNameController.text,
-            lastName: _lastNameController.text,
-            email: _emailController.text,
-            password: _passwordController.text,
-            passwordConfirmation: _repeatPasswordController.text));
-        print(res);
+        // await Future.delayed(const Duration(seconds: 1));
+        final res = await UserApi.register(
+            context,
+            RegisterModelRequest(
+                firstName: _firstNameController.text,
+                lastName: _lastNameController.text,
+                email: _emailController.text,
+                password: _passwordController.text,
+                passwordConfirmation: _repeatPasswordController.text));
+        if (res) {
+          Navigator.pushNamed(context, AppRoutes.verifyPage,
+              arguments: {'email': _emailController.text});
+        }
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text('Registration failed: $e'), // Display the error message

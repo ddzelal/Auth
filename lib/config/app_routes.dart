@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_auth/pages/login_page.dart';
 import 'package:flutter_application_auth/pages/register_page.dart';
+import 'package:flutter_application_auth/pages/verify_page.dart';
 
 class AppRoutes {
   static final pages = {
@@ -21,6 +22,7 @@ class AppRoutes {
           child: Text('Wellcome to home page'),
         ),
     initialPage: (context) => Text('Init Page'),
+    verifyPage: (context) => VerifyPage()
     // editProfile: (context) => EditProfilePage(),
     // nearby: (context) => NearbyPage(),
     // user: (context) => UserPage(),
@@ -31,4 +33,5 @@ class AppRoutes {
   static const register = '/register';
   static const main = '/main';
   static const initialPage = '/';
+  static const verifyPage = '/verify';
 }
