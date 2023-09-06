@@ -37,7 +37,7 @@ class _VerifyPageState extends State<VerifyPage> {
         loading = true;
       });
       try {
-        final res = await UserApi.verify(email, _verificationCode.text);
+        final res = await UserService.verify(email, _verificationCode.text);
         if (res) {
           Navigator.pushReplacementNamed(context, AppRoutes.login);
         }

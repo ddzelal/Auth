@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_auth/components/app_button.dart';
 import 'package:flutter_application_auth/components/app_text_field.dart';
-import 'package:flutter_application_auth/components/app_toast.dart';
 import 'package:flutter_application_auth/components/toolbar.dart';
 import 'package:flutter_application_auth/config/app_routes.dart';
 import 'package:flutter_application_auth/config/app_strings.dart';
@@ -47,7 +46,7 @@ class _RegisterPageState extends State<RegisterPage> {
       try {
         // Remove this line - this is for test
         // await Future.delayed(const Duration(seconds: 1));
-        final res = await UserApi.register(
+        final res = await UserService.register(
             context,
             RegisterModelRequest(
                 firstName: _firstNameController.text,

@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_auth/components/app_button.dart';
 import 'package:flutter_application_auth/components/app_text_field.dart';
+import 'package:flutter_application_auth/config/app_routes.dart';
 import 'package:flutter_application_auth/config/app_strings.dart';
 import 'package:flutter_application_auth/styles/app_colors.dart';
 import 'package:flutter_application_auth/styles/app_text.dart';
@@ -78,10 +79,15 @@ class _LoginPageState extends State<LoginPage> {
                       SizedBox(width: 10),
                       Text(AppStrings.rememberMe, style: AppText.paragraph3),
                       Expanded(
+                        child: GestureDetector(
+                          onTap: () => Navigator.pushNamed(
+                              context, AppRoutes.requestForgotPassword),
                           child: Align(
                               alignment: Alignment.centerRight,
                               child: Text(AppStrings.forgotPassword,
-                                  style: AppText.paragraph3))),
+                                  style: AppText.paragraph3)),
+                        ),
+                      ),
                     ],
                   ),
                   SizedBox(height: 20),
