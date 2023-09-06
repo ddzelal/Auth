@@ -34,9 +34,6 @@ class _RequestForgotPasswordPageState extends State<RequestForgotPasswordPage> {
       await Future.delayed(Duration(seconds: 1));
       final res = await UserService.sendEmailForForgotPassword(
           ForgotPasswordModelRequest(email: _emailController.text));
-      setState(() {
-        loading = false;
-      });
       if (res) {
         Navigator.pushNamed(context, AppRoutes.forgotPassword,
             arguments: {'email': _emailController.text});
@@ -51,6 +48,9 @@ class _RequestForgotPasswordPageState extends State<RequestForgotPasswordPage> {
         content: Text('sending code failed: $e'), // Display the error message
       ));
     }
+    setState(() {
+      loading = false;
+    });
   }
 
   Widget build(BuildContext context) {
