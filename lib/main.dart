@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_auth/config/app_routes.dart';
+import 'package:flutter_application_auth/provider/auth.provider.dart';
 import 'package:flutter_application_auth/styles/app_colors.dart';
 import 'package:provider/provider.dart';
 
@@ -31,15 +32,18 @@ class MyApp extends StatelessWidget {
   MyApp({required this.initialRoute});
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        fontFamily: 'Urbanist',
-        scaffoldBackgroundColor: AppColors.backgroundApp,
-        // brightness: Brightness.dark,
+    return MultiProvider(
+      providers: [ChangeNotifierProvider(create: (_) => AuthProvider())],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          fontFamily: 'Urbanist',
+          scaffoldBackgroundColor: AppColors.backgroundApp,
+          // brightness: Brightness.dark,
+        ),
+        initialRoute: initialRoute,
+        routes: AppRoutes.pages,
       ),
-      initialRoute: initialRoute,
-      routes: AppRoutes.pages,
     );
   }
 }

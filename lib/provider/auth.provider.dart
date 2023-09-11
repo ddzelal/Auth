@@ -1,115 +1,67 @@
-// import 'dart:async';
-// import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:flutter_application_auth/components/app_toast.dart';
+import 'package:flutter_application_auth/config/app_routes.dart';
+import 'package:flutter_application_auth/model/login_session.model.dart';
+import 'package:flutter_application_auth/pages/home_page.dart';
+import 'package:flutter_application_auth/services/auth_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-// import 'package:flutter/material.dart';
-// import 'package:flutter_application_auth/domains/user.dart';
-// import 'package:http/http.dart';
+class AuthProvider with ChangeNotifier {
+  String? _accessToken;
+  String? _refreshToken;
 
-// enum Status {
-//   NotLoggedIn,
-//   NotRegistered,
-//   LoggedIn,
-//   Registered,
-//   Authenticating,
-//   Registering,
-//   LoggedOut
-// }
+  final AuthService _authService = AuthService();
 
-// class AuthProvider with ChangeNotifier {
-//   Status _loggedInStatus = Status.NotLoggedIn;
-//   Status _registeredInStatus = Status.NotRegistered;
+  AuthService get authService => _authService;
+  String? get accessToken => _accessToken;
+  String? get refreshToken => _refreshToken;
 
-//   Status get loggedInStatus => _loggedInStatus;
-//   Status get registeredInStatus => _registeredInStatus;
+  void setAccessToken(String token) {
+    _accessToken = token;
+    _saveAccessToken(token);
+    notifyListeners();
+  }
 
-//   Future<Map<String, dynamic>> login(String email, String password) async {
-//     var result;
+  void setRefreshToken(String token) {
+    _refreshToken = token;
+    _saveRefreshToken(token);
+    notifyListeners();
+  }
 
-//     final Map<String, dynamic> loginData = {
-//       'user': {'email': email, 'password': password}
-//     };
+  Future<void> _saveAccessToken(String token) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('access_token', token);
+  }
 
-//     _loggedInStatus = Status.Authenticating;
-//     notifyListeners();
+  Future<void> _saveRefreshToken(String token) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('refresh_token', token);
+  }
 
-//     Response response = await post(
-//       AppUrl.login,
-//       body: json.encode(loginData),
-//       headers: {'Content-Type': 'application/json'},
-//     );
-
-//     if (response.statusCode == 200) {
-//       final Map<String, dynamic> responseData = json.decode(response.body);
-
-//       var userData = responseData['data'];
-
-//       User authUser = User.fromJson(userData);
-
-//       UserPreferences().saveUser(authUser);
-
-//       _loggedInStatus = Status.LoggedIn;
-//       notifyListeners();
-
-//       result = {'status': true, 'message': 'Successful', 'user': authUser};
-//     } else {
-//       _loggedInStatus = Status.NotLoggedIn;
-//       notifyListeners();
-//       result = {
-//         'status': false,
-//         'message': json.decode(response.body)['error']
-//       };
-//     }
-//     return result;
-//   }
-
-//   Future<Map<String, dynamic>> register(
-//       String email, String password, String passwordConfirmation) async {
-//     final Map<String, dynamic> registrationData = {
-//       'user': {
-//         'email': email,
-//         'password': password,
-//         'password_confirmation': passwordConfirmation
-//       }
-//     };
-
-//     _registeredInStatus = Status.Registering;
-//     notifyListeners();
-
-//     return await post(AppUrl.register,
-//             body: json.encode(registrationData),
-//             headers: {'Content-Type': 'application/json'})
-//         .then(onValue)
-//         .catchError(onError);
-//   }
-
-//   static Future<FutureOr> onValue(Response response) async {
-//     var result;
-//     final Map<String, dynamic> responseData = json.decode(response.body);
-
-//     if (response.statusCode == 200) {
-//       var userData = responseData['data'];
-
-//       User authUser = User.fromJson(userData);
-
-//       UserPreferences().saveUser(authUser);
-//       result = {
-//         'status': true,
-//         'message': 'Successfully registered',
-//         'data': authUser
-//       };
-//     } else {
-//       result = {
-//         'status': false,
-//         'message': 'Registration failed',
-//         'data': responseData
-//       };
-//     }
-
-//     return result;
-//   }
-
-//   static onError(error) {
-//     print("the error is $error.detail");
-//     return {'status': false, 'message': 'Unsuccessful Request', 'data': error};
-//   }
-// }
+  Future<void> loginCall(
+      BuildContext context,
+      TextEditingController emailController,
+      LoginRequestModel loginRequest) async {
+    try {
+      final response = await _authService.login(loginRequest);
+      if (response is LoginResponseModel) {
+        setAccessToken(response.accessToken);
+        setRefreshToken(response.refreshToken);
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => HomePage()),
+          (Route<dynamic> route) => false,
+        );
+      } else if (response == 'Invalid email or password') {
+        CustomToast.show(message: 'Invalid email or password');
+      } else {
+        CustomToast.show(
+            message: 'Please verify your account , check your email!');
+        Navigator.pushNamed(context, AppRoutes.verifyPage,
+            arguments: {'email': emailController.text});
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+}

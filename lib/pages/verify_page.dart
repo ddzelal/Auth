@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_auth/components/app_button.dart';
 import 'package:flutter_application_auth/components/app_text_field.dart';
+import 'package:flutter_application_auth/components/app_toast.dart';
 import 'package:flutter_application_auth/components/toolbar.dart';
 import 'package:flutter_application_auth/config/app_routes.dart';
 import 'package:flutter_application_auth/services/user_service.dart';
@@ -39,7 +40,11 @@ class _VerifyPageState extends State<VerifyPage> {
       try {
         final res = await UserService.verify(email, _verificationCode.text);
         if (res) {
+          CustomToast.show(message: 'User successfully verify');
           Navigator.pushReplacementNamed(context, AppRoutes.login);
+        } else {
+          CustomToast.show(
+              message: 'Could not verify user,please chech your email');
         }
       } catch (e) {
         print(e);

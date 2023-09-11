@@ -3,10 +3,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_auth/components/app_button.dart';
 import 'package:flutter_application_auth/components/app_text_field.dart';
+import 'package:flutter_application_auth/components/app_toast.dart';
 import 'package:flutter_application_auth/config/app_routes.dart';
 import 'package:flutter_application_auth/config/app_strings.dart';
+import 'package:flutter_application_auth/model/login_session.model.dart';
+import 'package:flutter_application_auth/provider/auth.provider.dart';
+import 'package:flutter_application_auth/services/auth_service.dart';
 import 'package:flutter_application_auth/styles/app_colors.dart';
 import 'package:flutter_application_auth/styles/app_text.dart';
+import 'package:provider/provider.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -16,7 +21,41 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  TextEditingController _emailController = TextEditingController();
+  TextEditingController _passwordController = TextEditingController();
+
   bool _isChecked = false;
+  bool loading = false;
+  void login() async {
+    setState(() {
+      loading = true;
+    });
+
+    try {
+      final res = await AuthService().login(LoginRequestModel(
+          email: _emailController.text, password: _passwordController.text));
+      if (res == 'Invalid email or password') {
+        CustomToast.show(message: 'Invalid email or password');
+      } else if (res is LoginResponseModel) {
+        final accessToken = res.accessToken;
+        print('AccessToken: $accessToken');
+      } else {
+        CustomToast.show(
+            message: 'Please verify your account , check your email!');
+        Navigator.pushNamed(context, AppRoutes.verifyPage,
+            arguments: {'email': _emailController.text});
+      }
+    } catch (e) {
+      // Uhvaćena je greška prilikom poziva servisa.
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Login failed: $e'), // Prikazivanje poruke o grešci
+      ));
+    }
+
+    setState(() {
+      loading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,12 +90,14 @@ class _LoginPageState extends State<LoginPage> {
                       style: AppText.header3, textAlign: TextAlign.end),
                   SizedBox(height: 20),
                   CustomTextField(
+                    controller: _emailController,
                     onChange: (value) => print(value),
                     label: AppStrings.email,
                     leadingIcon: Icons.email,
                   ),
                   SizedBox(height: 20),
                   CustomTextField(
+                    controller: _passwordController,
                     onChange: (value) => print(value),
                     label: AppStrings.password,
                     leadingIcon: Icons.lock,
@@ -91,11 +132,27 @@ class _LoginPageState extends State<LoginPage> {
                     ],
                   ),
                   SizedBox(height: 20),
-                  CustomButton(
-                    text: AppStrings.login,
-                    icon: Icons.login,
-                    onPressed: () => {print('HA')},
-                  ),
+                  Consumer<AuthProvider>(builder: (context, auth, child) {
+                    return CustomButton(
+                      loading: loading,
+                      text: AppStrings.login,
+                      onPressed: () {
+                        auth.loginCall(
+                            context,
+                            _emailController,
+                            LoginRequestModel(
+                                email: _emailController.text,
+                                password: _passwordController.text));
+                      },
+                    );
+                  }
+                      // child: CustomButton(
+                      //   loading: loading,
+                      //   text: AppStrings.login,
+                      //   icon: Icons.login,
+                      //   onPressed: () => {},
+                      // ),
+                      ),
                   SizedBox(height: 20),
                   Center(
                       child: Text(AppStrings.dontHaveAccount,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_auth/components/app_button.dart';
 import 'package:flutter_application_auth/components/app_text_field.dart';
+import 'package:flutter_application_auth/components/app_toast.dart';
 import 'package:flutter_application_auth/components/toolbar.dart';
 import 'package:flutter_application_auth/config/app_routes.dart';
 import 'package:flutter_application_auth/config/app_strings.dart';
@@ -55,8 +56,12 @@ class _RegisterPageState extends State<RegisterPage> {
                 password: _passwordController.text,
                 passwordConfirmation: _repeatPasswordController.text));
         if (res) {
+          CustomToast.show(
+              message: 'User successfully created, please verify your account');
           Navigator.pushNamed(context, AppRoutes.verifyPage,
               arguments: {'email': _emailController.text});
+        } else {
+          CustomToast.show(message: 'Account already exists');
         }
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
