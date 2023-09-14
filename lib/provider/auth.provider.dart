@@ -64,4 +64,18 @@ class AuthProvider with ChangeNotifier {
       print(e);
     }
   }
+
+  Future<void> logout(BuildContext context) async {
+    _accessToken = null;
+    _refreshToken = null;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('access_token');
+    await prefs.remove('refresh_token');
+    
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      AppRoutes.login,
+      (Route<dynamic> route) => false,
+    );
+  }
 }

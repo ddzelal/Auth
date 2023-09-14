@@ -1,12 +1,16 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_application_auth/config/app_url.dart';
 import 'package:flutter_application_auth/model/forgot_password.model.dart';
 import 'package:flutter_application_auth/model/register.model.dart';
+import 'package:flutter_application_auth/model/user.model.dart';
 import 'package:flutter_application_auth/utils/handleCatchError.dart';
 import 'package:http/http.dart' as http;
 
 class UserService {
   // ignore: constant_identifier_names
-  static const BASE_URL = 'http://192.168.0.193:3000';
+  static const BASE_URL = AppUrl.localUrl;
 
   static Future<bool> register(
       BuildContext context, RegisterModelRequest requestModel) async {
@@ -16,6 +20,21 @@ class UserService {
           headers: {"Content-Type": "application/json"},
           body: RegisterModelRequestToJson(requestModel));
       return response.statusCode == 200 ? true : false;
+    });
+  }
+
+  Future<User> getCurrentUser(token) async {
+    const url = '$BASE_URL/api/users/me';
+    return await handleRequestAndCatchErrors(() async {
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+      return User.fromJson(jsonDecode(response.body));
     });
   }
 

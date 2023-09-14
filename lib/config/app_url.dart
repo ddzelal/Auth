@@ -1,3 +1,3 @@
 class AppUrl {
-  static const String localUrl = 'http://192.168.0.193:3000';
+  static const String localUrl = 'http://192.168.1.161:3000';
 }
